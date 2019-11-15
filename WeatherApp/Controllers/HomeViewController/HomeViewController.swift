@@ -19,7 +19,7 @@ class HomeViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         addTableBackGroundView()
     }
@@ -39,33 +39,43 @@ class HomeViewController: BaseViewController {
     }
     
     func addTableBackGroundView() {
-        let label = UILabel(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: self.tableView.frame.size.height))
-        label.numberOfLines = 0
-        label.text = "Please Click on + Button to Add City"
-        label.font = UIFont.systemFont(ofSize: 35)
-        label.textAlignment = .center
-        self.tableView.backgroundView = label
+        DispatchQueue.main.async {
+            let label = UILabel(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: self.tableView.frame.size.height))
+            label.numberOfLines = 0
+            label.text = "Please Click on + Button to Add City"
+            label.font = UIFont.systemFont(ofSize: 35)
+            label.textAlignment = .center
+            self.tableView.backgroundView = label            
+        }
     }
-
+    
     func removeTableBackGroundView() {
-        if let _ = self.tableView.backgroundView as? UILabel {
-            self.tableView.backgroundView = nil
+        DispatchQueue.main.async {
+            if let _ = self.tableView.backgroundView as? UILabel {
+                self.tableView.backgroundView = nil
+            }
         }
     }
     
     @IBAction func btnAddCityClicked(_ sender: Any) {
+        gotoCityListVC()
+    }
+    
+    func gotoCityListVC() {
         let cityListVC = UIStoryboard(name: .main).instantiateViewController(withIdentifier: "CityListViewController") as! CityListViewController
         cityListVC.delegate = self
         AppRouter.sharedInstance.presentController(fromViewController: self, toViewController: cityListVC)
     }
     
     func loaderAnimation(isAnimating animation: Bool) {
-        if animation {
-            self.loader.startAnimating()
-        } else {
-            self.loader.stopAnimating()
+        DispatchQueue.main.async {
+            if animation {
+                self.loader.startAnimating()
+            } else {
+                self.loader.stopAnimating()
+            }
+            self.loader.isHidden = !animation
         }
-        self.loader.isHidden = !animation
     }
 }
 
@@ -118,28 +128,28 @@ extension HomeViewController: WeatherDataProtocol {
     }
     
     func didReceiveWeatherDataResponse(withData weatherResponse: WeatherResponse?, forCity city: City?, withError error: Error?) {
-        DispatchQueue.main.async {
-            self.removeTableBackGroundView()
-            self.loaderAnimation(isAnimating: false)
-            if let weatherData = weatherResponse {
-                if let arrData = self.arrayCitiesWeather, let cityWeather = city, arrData.count > 0 {
-                    self.arrayCitiesWeather?.append([
-                        "City": cityWeather,
-                        "Data": weatherData
-                        ])
-                } else if let cityWeather = city {
-                    self.arrayCitiesWeather = []
-                    self.arrayCitiesWeather?.append([
-                        "City": cityWeather,
-                        "Data": weatherData
-                        ])
-                } else {
-                    
-                }
-                self.tableView.reloadData()
+        self.removeTableBackGroundView()
+        self.loaderAnimation(isAnimating: false)
+        if let weatherData = weatherResponse {
+            if let arrData = self.arrayCitiesWeather, let cityWeather = city, arrData.count > 0 {
+                self.arrayCitiesWeather?.append([
+                    "City": cityWeather,
+                    "Data": weatherData
+                    ])
+            } else if let cityWeather = city {
+                self.arrayCitiesWeather = []
+                self.arrayCitiesWeather?.append([
+                    "City": cityWeather,
+                    "Data": weatherData
+                    ])
             } else {
-                print("No RESPONSE")
+                
             }
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        } else {
+            print("No RESPONSE")
         }
     }
     

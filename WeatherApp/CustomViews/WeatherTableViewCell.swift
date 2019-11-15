@@ -46,13 +46,15 @@ class WeatherTableViewCell: UITableViewCell {
         var rainPercentage = ""
         
         if let humidity = data.currently?.humidity {
-            humidityPercentage = "\((humidity * 100))% Humidity"
+            let value = String(format: "%.1f", humidity * 100)
+            humidityPercentage = "\(value)% Humidity"
         } else {
             humidityPercentage = "0% Humidity"
         }
         
         if let dailyData = data.daily?.data, dailyData.count > 0, let rain = dailyData[0] .precipProbability {
-            rainPercentage = "\((rain * 100))% Chances of Rain"
+            let value = String(format: "%.1f", rain * 100)
+            rainPercentage = "\(value)% Chances of Rain"
         } else {
             rainPercentage = "0% Chances of Rain"
         }
